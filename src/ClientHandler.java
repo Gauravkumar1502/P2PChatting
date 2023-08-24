@@ -83,23 +83,24 @@ public class ClientHandler implements Runnable{
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
                     }
-                } else
-                    sentMessageToAllClients(this.username + ": " + message);
+                } else {
+                    if (clientHandlers.size() == 1){
+                        try{
+                            bufferedWriter.write("No other clients connected");
+                            bufferedWriter.newLine();
+                            bufferedWriter.flush();
+                        }catch (IOException e){
+                            closeEverything(socket, bufferedReader, bufferedWriter);
+                        }
+                    }else
+                        sentMessageToAllClients(this.username + ": " + message);
+                }
             }
         }catch (IOException e){
                 closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
     public void sentMessageToAllClients(String message){
-        if (clientHandlers.size() == 1){
-            try{
-                bufferedWriter.write("No other clients connected");
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }catch (IOException e){
-                closeEverything(socket, bufferedReader, bufferedWriter);
-            }
-        }else {
             for (ClientHandler clientHandler : clientHandlers) {
                 try {
                     if (!clientHandler.username.equals(this.username)) {
@@ -111,7 +112,6 @@ public class ClientHandler implements Runnable{
                     closeEverything(clientHandler.socket, clientHandler.bufferedReader, clientHandler.bufferedWriter);
                 }
             }
-        }
     }
     public void removeClientHandler(){
         clientHandlers.remove(this);

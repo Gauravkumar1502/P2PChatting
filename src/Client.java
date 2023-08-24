@@ -77,7 +77,8 @@ public class Client {
         String username = scanner.nextLine();
         Socket socket;
         try {
-            socket = new Socket("ec2-3-110-63-212.ap-south-1.compute.amazonaws.com", 1234);
+//            socket = new Socket("ec2-3-110-63-212.ap-south-1.compute.amazonaws.com", 1234);
+            socket = new Socket("localhost", 1234);
             Client client = new Client(socket, username);
             client.listenMessageFromServer();
             client.sentMessageToServer();
