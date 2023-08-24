@@ -75,9 +75,9 @@ public class Client {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter your name: ");
         String username = scanner.nextLine();
-        Socket socket = null;
+        Socket socket;
         try {
-            socket = new Socket("192.168.29.83", 1234);
+            socket = new Socket("ec2-3-110-63-212.ap-south-1.compute.amazonaws.com", 1234);
             Client client = new Client(socket, username);
             client.listenMessageFromServer();
             client.sentMessageToServer();

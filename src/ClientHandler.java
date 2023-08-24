@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClientHandler implements Runnable{
@@ -11,7 +10,6 @@ public class ClientHandler implements Runnable{
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String username;
-    private ClientHandler recipient;
 
     public ClientHandler(Socket socket){
         try{
@@ -50,21 +48,21 @@ public class ClientHandler implements Runnable{
     @Override
     public void run() {
         String message;
-        while (socket.isConnected()){
-            try{
+        try{
+            while (socket.isConnected()) {
                 message = bufferedReader.readLine();
-                if(message.startsWith("!exit")){
+                if (message.startsWith("!exit")) {
                     closeEverything(socket, bufferedReader, bufferedWriter);
-                }else if(message.equals("ls")){
+                } else if (message.equals("ls")) {
                     String list = clientHandlers.stream()
                             .filter(clientHandler -> !clientHandler.username.equals(this.username))
-                            .map(clientHandler -> clientHandler.username+"\n")
+                            .map(clientHandler -> clientHandler.username + "\n")
                             .collect(Collectors.joining());
                     bufferedWriter.write(list);
                     bufferedWriter.flush();
-                }else if(message.startsWith("@")){
+                } else if (message.startsWith("@")) {
                     String[] split = message.split(" ", 2);
-                    if(split.length < 2){
+                    if (split.length < 2) {
                         bufferedWriter.write("Usage: @username [message]");
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
@@ -72,25 +70,24 @@ public class ClientHandler implements Runnable{
                     }
                     String recipientName = split[0].substring(1);
                     String messageToRecipient = split[1];
-                    recipient = clientHandlers.stream()
+                    ClientHandler recipient = clientHandlers.stream()
                             .filter(clientHandler -> clientHandler.username.equals(recipientName))
                             .findFirst()
                             .orElse(null);
-                    if(recipient != null){
+                    if (recipient != null) {
                         recipient.bufferedWriter.write(this.username + ": " + messageToRecipient);
                         recipient.bufferedWriter.newLine();
                         recipient.bufferedWriter.flush();
-                    }else{
+                    } else {
                         bufferedWriter.write("User " + recipientName + " not found");
                         bufferedWriter.newLine();
                         bufferedWriter.flush();
                     }
-                }else
+                } else
                     sentMessageToAllClients(this.username + ": " + message);
-            }catch (IOException e){
-                closeEverything(socket, bufferedReader, bufferedWriter);
-                break;
             }
+        }catch (IOException e){
+                closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
     public void sentMessageToAllClients(String message){
