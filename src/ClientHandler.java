@@ -51,6 +51,11 @@ public class ClientHandler implements Runnable{
         try{
             while (socket.isConnected()) {
                 message = bufferedReader.readLine();
+                if (message == null) {
+                    System.out.println("Client disconnected without sending data");
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    break;
+                }
                 if (message.startsWith("!exit")) {
                     closeEverything(socket, bufferedReader, bufferedWriter);
                 } else if (message.equals("ls")) {
